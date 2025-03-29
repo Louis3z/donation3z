@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Donation QR Codes</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        body {
+            background-color: #000;
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px 60px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+        
+        header h1 {
+            font-size: 36px;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: 2px;
+        }
+        
+        header p {
+            color: #aaa;
+            font-size: 18px;
+        }
+        
+        .section {
+            margin-bottom: 60px;
+            padding: 30px;
+            border-radius: 20px;
+            background-color: #111;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 5px;
+            height: 100%;
+            background: linear-gradient(180deg, #3498db, #2ecc71);
+        }
+        
+        .section-title {
+            color: #fff;
+            margin-bottom: 30px;
+            font-size: 28px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .qr-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 30px;
+            margin-top: 20px;
+        }
+        
+        .qr-code {
+            background-color: #1a1a1a;
+            border-radius: 15px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 200px;
+        }
+        
+        .qr-code:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+        }
+        
+        .qr-image-container {
+            position: relative;
+            cursor: pointer;
+        }
+        
+        .qr-image-container::after {
+            content: '🔍';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            opacity: 0.7;
+            transition: opacity 0.2s;
+        }
+        
+        .qr-image-container:hover::after {
+            opacity: 1;
+        }
+        
+        .qr-code img {
+            width: 160px;
+            height: 160px;
+            background-color: white;
+            padding: 10px;
+            border-radius: 8px;
+            transition: transform 0.2s;
+        }
+        
+        .qr-label {
+            margin-top: 15px;
+            font-size: 16px;
+            color: #ddd;
+            text-align: center;
+        }
+        
+        .nav {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 100;
+        }
+        
+        .nav-button {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background-color: rgba(30, 30, 30, 0.8);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transition: background-color 0.3s;
+            text-decoration: none;
+            font-size: 24px;
+        }
+        
+        .nav-button:hover {
+            background-color: rgba(60, 60, 60, 0.9);
+        }
+
+        /* Modal/Fullscreen styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            max-width: 90%;
+        }
+        
+        .modal-image {
+            max-width: 100%;
+            max-height: 70vh;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-caption {
+            color: white;
+            margin-top: 20px;
+            font-size: 24px;
+            text-align: center;
+        }
+        
+        .modal-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: white;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .modal-close:hover {
+            color: #f44336;
+        }
+        
+        .modal-download {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #3498db, #2ecc71);
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: transform 0.2s, opacity 0.2s;
+        }
+        
+        .modal-download:hover {
+            transform: translateY(-2px);
+            opacity: 0.9;
+        }
+
+        /* For the subtle glow effect */
+        .glow {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 50% 30%, rgba(40, 40, 40, 0.2), transparent 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .section {
+                padding: 20px;
+            }
+            
+            .qr-container {
+                gap: 20px;
+            }
+            
+            .qr-code {
+                width: 170px;
+            }
+            
+            .qr-code img {
+                width: 130px;
+                height: 130px;
+            }
+            
+            .modal-caption {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow"></div>
+    
+    <div class="container">
+        <header>
+            <h1>DONATION QR CODES</h1>
+            <p>Scan to send Donations!</p>
+        </header>
+        
+        <!-- Kpay Section -->
+        <div class="section" id="kpay">
+            <h2 class="section-title">KPAY</h2>
+            <div class="qr-container">
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="kpaydad.jpg" alt="KPAY QR Code 1" class="qr-image" data-caption="Kpay">
+                    </div>
+                    <div class="qr-label">KPAY 1</div>
+                </div>
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="kpaylouis.jpg" alt="KPAY QR Code 2" class="qr-image" data-caption="Kpay">
+                    </div>
+                <div class="qr-label">KPAY 2</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Wavepay Section -->
+        <div class="section" id="wavepay">
+            <h2 class="section-title">WavePay</h2>
+            <div class="qr-container">
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="wavelouis.jpg" alt="Wavepay QR Code 1" class="qr-image" data-caption="Wavepay">
+                    </div>
+                    <div class="qr-label">WaveMoney</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- International Section -->
+        <div class="section" id="scb">
+            <h2 class="section-title">Thai Bank</h2>
+            <div class="qr-container">
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="scbb.jpg" alt="SCB QR Code 1" class="qr-image" data-caption="SCB">
+                    </div>
+                    <div class="qr-label">SCB</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section" id="paypal">
+            <h2 class="section-title">PayPal(International)</h2>
+            <div class="qr-container">
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="paypal.jpg" alt="SCB QR Code 1" class="qr-image" data-caption="Paypal">
+                    </div>
+                    <div class="qr-label">Paypal</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- US Section -->
+        <div class="section" id="scb">
+            <h2 class="section-title">US Payments. Venmo & Zelle</h2>
+            <div class="qr-container">
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="venmo.jpg" alt="Venmo QR Code 1" class="qr-image" data-caption="Venmo">
+                    </div>
+                    <div class="qr-label">Venmo</div>
+                </div>
+                <div class="qr-code">
+                    <div class="qr-image-container">
+                        <img src="zelle.jpg" alt="Zelle QR Code 1" class="qr-image" data-caption="Zelle">
+                    </div>
+                <div class="qr-label">Zelle</div>
+                </div>
+            </div>
+        </div>
+
+        
+    </div>
+    
+    <!-- Fullscreen Modal -->
+    <div id="qrModal" class="modal">
+        <span class="modal-close">&times;</span>
+        <div class="modal-content">
+            <img id="modalImage" class="modal-image" src="" alt="Fullscreen QR Code">
+            <div id="modalCaption" class="modal-caption"></div>
+            <button class="modal-download">
+                <span>Save QR Code</span>
+                <span>⤓</span>
+            </button>
+        </div>
+    </div>
+    
+    <div class="nav">
+        <a href="#" class="nav-button" id="scrollToTopBtn">↑</a>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Scroll to top button
+            const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+            
+            scrollToTopBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            });
+            
+            // Show/hide scroll button based on scroll position
+            window.addEventListener('scroll', function() {
+                if (window.pageYOffset > 300) {
+                    scrollToTopBtn.style.display = 'flex';
+                } else {
+                    scrollToTopBtn.style.display = 'none';
+                }
+            });
+            
+            // Initially hide the button
+            scrollToTopBtn.style.display = 'none';
+            
+            // Modal functionality
+            const modal = document.getElementById('qrModal');
+            const modalImage = document.getElementById('modalImage');
+            const modalCaption = document.getElementById('modalCaption');
+            const modalClose = document.querySelector('.modal-close');
+            const modalDownload = document.querySelector('.modal-download');
+            const qrImages = document.querySelectorAll('.qr-image');
+            
+            // Open the modal when clicking on a QR image
+            qrImages.forEach(image => {
+                image.addEventListener('click', function() {
+                    modal.style.display = 'flex';
+                    modalImage.src = this.src;
+                    modalImage.alt = this.alt;
+                    modalCaption.textContent = this.getAttribute('data-caption');
+                    
+                    // Prevent body scrolling when modal is open
+                    document.body.style.overflow = 'hidden';
+                });
+            });
+            
+            // Close the modal
+            modalClose.addEventListener('click', function() {
+                modal.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            });
+            
+            // Close the modal when clicking outside the image
+            window.addEventListener('click', function(event) {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Escape key to close modal
+            window.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape' && modal.style.display === 'flex') {
+                    modal.style.display = 'none';
+                    document.body.style.overflow = 'auto';
+                }
+            });
+            
+            // Simulate download functionality
+            modalDownload.addEventListener('click', function() {
+                // In a real implementation, this would trigger an actual download
+                // For now, we'll just show an alert
+                alert('In a real implementation, this would download the QR code image.');
+                
+                // Alternatively, you could use this for an actual download:
+                // const link = document.createElement('a');
+                // link.href = modalImage.src;
+                // link.download = modalCaption.textContent.replace(/\s+/g, '-').toLowerCase() + '.png';
+                // document.body.appendChild(link);
+                // link.click();
+                // document.body.removeChild(link);
+            });
+        });
+    </script>
+</body>
+</html>
